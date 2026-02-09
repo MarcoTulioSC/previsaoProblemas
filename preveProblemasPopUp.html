@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border-bottom: 1px solid #ddd;
+      padding: 6px;
+      text-align: left;
+    }
+    th {
+      background: #f2f2f2;
+    }
+    .alto { color: red; font-weight: bold; }
+    .medio { color: orange; font-weight: bold; }
+    .baixo { color: green; font-weight: bold; }
+  </style>
+</head>
+
+<body>
+  <h3>Previsão para as próximas 4 semanas</h3>
+
+  <!-- ESSENCIAL -->
+  <div id="conteudo">Calculando simulação de Monte Carlo...</div>
+
+  <script>
+    google.script.run
+      .withSuccessHandler(mostrar)
+      .calcularMonteCarlo();
+
+    function mostrar(dados) {
+      if (!dados || dados.length === 0) {
+        document.getElementById("conteudo").innerHTML =
+          "<p>Nenhum dado encontrado para os filtros atuais.</p>";
+        return;
+      }
+
+      let html = "<table>";
+     html += `
+        <tr>
+          <th>Tipo de Problema</th>
+          <th>Risco Probabilidade</th>
+          <th>Classificação do problema</th>
+        </tr>`;
+
+      dados.forEach(l => {
+         const p = l.probabilidade;
+        let classe = "baixo";
+        let texto = "Risco BAIXO";
+        let msg = "Ocorrência pouco provável no período.";
+
+       
+        if (l.probabilidade > 0.6){ 
+          classe = "alto";
+          texto = "Risco ALTO";
+          msg = "Ocorrência muito provável"
+        }
+        
+        else if (l.probabilidade < 0.5){
+        classe = "medio";
+        texto = "Risco Médio/Baixo"
+        }
+
+        html += `
+          <tr>
+            <td>${l.problema}</td>
+            <td class="${classe}">
+              ${(p * 100).toFixed(1)}%
+            </td>
+            <td class="${classe}">
+              ${texto}
+              <div class="msg">${msg}</div>
+            </td>
+          </tr>`;
+      });
+
+      html += "</table>";
+      document.getElementById("conteudo").innerHTML = html;
+    }
+  </script>
+</body>
+</html>
